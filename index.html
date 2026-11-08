@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Conversor de Roteiro para SRT - by VH</title>
+    <style>
+        :root {
+            /* Vice City - noite */
+            --bg-top: #12012e;
+            --bg-bottom: #2b0a4f;
+            --card: rgba(24, 6, 52, .82);
+            --field: #0e0222;
+            --text: #f6e9ff;
+            --muted: #b79ad6;
+            --pink: #ff2e97;
+            --cyan: #19f0ff;
+            --orange: #ff9a3c;
+            --border: #5a2a8f;
+            --btn-text: #12012e;
+            --glow: 0 0 18px rgba(255, 46, 151, .45);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+            scroll-padding-top: env(safe-area-inset-top, 0px);
+        }
+
+        :root {
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        body {
+            margin: 0;
+            min-height: 100%;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+            color: var(--text);
+            background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom)) fixed;
+        }
+
+        .wrap {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        h1 {
+            margin: 0;
+            font-weight: 600;
+            font-size: clamp(24px, 5.5vw, 34px);
+            line-height: 1.15;
+            letter-spacing: .3px;
+            color: var(--white);
+        }
+
+        .sub {
+            margin: 2px 0 0;
+            color: var(--white);
+            font-size: 14px;
+        }
+
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: var(--glow);
+            backdrop-filter: blur(6px);
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .row-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .counter {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        textarea,
+        input,
+        select {
+            width: 100%;
+            background: var(--field);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 11px 12px;
+            font: inherit;
+            font-size: 16px;
+            outline: none;
+        }
+
+        textarea {
+            height: 220px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        textarea:focus,
+        input:focus,
+        select:focus,
+        button:focus-visible {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(25, 240, 255, .3);
+            outline: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            margin: 18px 0;
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        button {
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 11px 18px;
+            border: 1px solid transparent;
+            transition: transform .15s, box-shadow .15s;
+        }
+
+        .primary {
+            background: linear-gradient(90deg, var(--pink), var(--orange));
+            color: var(--btn-text);
+            box-shadow: var(--glow);
+        }
+
+        .ghost {
+            background: transparent;
+            color: var(--cyan);
+            border-color: var(--cyan);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 22px;
+            margin: 22px 0 10px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .stats b {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        #resultado {
+            white-space: pre-wrap;
+            background: var(--field);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            min-height: 56px;
+            max-height: 420px;
+            overflow: auto;
+            font-family: ui-monospace, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        #resultado:empty::before {
+            content: 'O SRT aparece aqui depois da conversão.';
+            color: var(--muted);
+            font-family: system-ui, sans-serif;
+        }
+
+        #toast {
+            position: fixed;
+            left: 50%;
+            bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+            transform: translateX(-50%) translateY(20px);
+            background: var(--cyan);
+            color: #12012e;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: .25s;
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%);
+        }
+
+        footer {
+            text-align: center;
+            color: var(--pink);
+            margin-top: 28px;
+            font-size: 14px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <header>
+            <div class="logo">
+                <div>
+                    <h1>Roteiro para SRT</h1>
+                    <p class="sub">Cole o texto, ajuste os tempos e baixe as legendas.</p>
+                </div>
+            </div>
+        </header>
+
+        <form id="form" class="card">
+            <div class="row-head">
+                <label for="texto">Roteiro</label>
+                <span class="counter" id="contador">0 caracteres · 0 palavras</span>
+            </div>
+            <textarea id="texto" required
+                placeholder="Exemplo: Uma grande ideia começa com uma pequena inspiração. Onde a sua jornada criativa te levará hoje?"></textarea>
+
+            <div class="grid">
+                <div>
+                    <label for="modo">Duração</label>
+                    <select id="modo">
+                        <option value="fixa">Fixa por bloco</option>
+                        <option value="auto">Pela velocidade de leitura</option>
+                    </select>
+                </div>
+                <div id="campoDuracao">
+                    <label for="duracao">Duração (s)</label>
+                    <input type="number" id="duracao" value="30" min="1" step="1" />
+                </div>
+                <div id="campoCps" class="hidden">
+                    <label for="cps">Caracteres por segundo</label>
+                    <input type="number" id="cps" value="15" min="5" max="40" step="1" />
+                    <div class="hint">Padrão de legenda: 13 a 17.</div>
+                </div>
+                <div>
+                    <label for="intervalo">Intervalo (s)</label>
+                    <input type="number" id="intervalo" value="12" min="0" step="0.5" />
+                </div>
+                <div>
+                    <label for="maxCar">Máx. caracteres</label>
+                    <input type="number" id="maxCar" value="500" min="50" step="10" />
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="button" id="limpar" class="ghost hidden">Limpar</button>
+                <button type="button" id="abrir" class="ghost">Abrir .txt</button>
+                <button type="submit" class="primary">Converter para SRT</button>
+            </div>
+            <input type="file" id="arquivo" accept=".txt,text/plain" class="hidden" />
+        </form>
+
+        <div class="stats" id="stats"></div>
+        <div id="resultado" aria-live="polite"></div>
+        <div class="actions" style="margin-top:12px">
+            <button type="button" id="copiar" class="ghost hidden">Copiar SRT</button>
+            <button type="button" id="baixar" class="primary hidden">Baixar SRT</button>
+        </div>
+
+        <footer>by VH</footer>
+    </div>
+    <div id="toast" role="status"></div>
+
+    <script>
+        (function () {
+            const $ = (id) => document.getElementById(id);
+            const el = {
+                form: $('form'), texto: $('texto'), modo: $('modo'), duracao: $('duracao'), cps: $('cps'),
+                intervalo: $('intervalo'), maxCar: $('maxCar'), res: $('resultado'), stats: $('stats'),
+                contador: $('contador'), baixar: $('baixar'), copiar: $('copiar'), limpar: $('limpar'),
+                abrir: $('abrir'), arquivo: $('arquivo'), toast: $('toast'),
+                campoDuracao: $('campoDuracao'), campoCps: $('campoCps')
+            };
+            const CAMPOS = ['modo', 'duracao', 'cps', 'intervalo', 'maxCar'];
+
+            /* ---------- Conversão ---------- */
+            function formatarTempo(s) {
+                const total = Math.round(s * 1000);
+                const h = Math.floor(total / 3600000);
+                const m = Math.floor((total % 3600000) / 60000);
+                const seg = Math.floor((total % 60000) / 1000);
+                const ms = total % 1000;
+                const p = (n, t = 2) => String(n).padStart(t, '0');
+                return `${p(h)}:${p(m)}:${p(seg)},${p(ms, 3)}`;
+            }
+
+            // Quebra o texto em frases, mantendo a pontuação.
+            function dividirFrases(texto) {
+                return (texto.replace(/\s+/g, ' ').trim().match(/[^.!?…]+(?:[.!?…]+["'”’)\]]*|$)/g) || [])
+                    .map((f) => f.trim()).filter(Boolean);
+            }
+
+            // Frase maior que o limite: corta na última vírgula/espaço possível.
+            function cortarFrase(frase, max) {
+                const partes = [];
+                while (frase.length > max) {
+                    let corte = frase.lastIndexOf(',', max);
+                    if (corte < max * 0.4) corte = frase.lastIndexOf(' ', max);
+                    if (corte <= 0) corte = max;
+                    partes.push(frase.slice(0, corte + 1).trim());
+                    frase = frase.slice(corte + 1).trim();
+                }
+                if (frase) partes.push(frase);
+                return partes;
+            }
+
+            function criarBlocos(texto, max) {
+                const blocos = [];
+                let atual = '';
+                for (const frase of dividirFrases(texto)) {
+                    for (const parte of cortarFrase(frase, max)) {
+                        if (atual && (atual + ' ' + parte).length > max) {
+                            blocos.push(atual);
+                            atual = parte;
+                        } else {
+                            atual = atual ? atual + ' ' + parte : parte;
+                        }
+                    }
+                }
+                if (atual) blocos.push(atual);
+                return blocos;
+            }
+
+            function converter(texto, cfg) {
+                const blocos = criarBlocos(texto, cfg.max);
+                let t = 0;
+                const partes = blocos.map((txt, i) => {
+                    const dur = cfg.modo === 'auto' ? Math.max(1.5, txt.length / cfg.cps) : cfg.duracao;
+                    const bloco = `${i + 1}\n${formatarTempo(t)} --> ${formatarTempo(t + dur)}\n${txt}`;
+                    t += dur + (i < blocos.length - 1 ? cfg.intervalo : 0);
+                    return bloco;
+                });
+                return { srt: partes.join('\n\n'), blocos: blocos.length, total: t };
+            }
+
+            function formatarDuracao(s) {
+                const m = Math.floor(s / 60), seg = Math.round(s % 60);
+                return m ? `${m} min ${seg} s` : `${seg} s`;
+            }
+
+            /* ---------- Interface ---------- */
+            let toastTimer;
+            function aviso(msg) {
+                el.toast.textContent = msg;
+                el.toast.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => el.toast.classList.remove('show'), 1800);
+            }
+
+            function atualizarContador() {
+                const t = el.texto.value.trim();
+                const palavras = t ? t.split(/\s+/).length : 0;
+                el.contador.textContent = `${el.texto.value.length} caracteres · ${palavras} palavras`;
+            }
+
+            function atualizarModo() {
+                const auto = el.modo.value === 'auto';
+                el.campoDuracao.classList.toggle('hidden', auto);
+                el.campoCps.classList.toggle('hidden', !auto);
+            }
+
+            function mostrarResultado(visivel) {
+                [el.baixar, el.copiar, el.limpar].forEach((b) => b.classList.toggle('hidden', !visivel));
+            }
+
+            function lerConfig() {
+                return {
+                    modo: el.modo.value,
+                    duracao: parseFloat(el.duracao.value) || 30,
+                    cps: parseFloat(el.cps.value) || 15,
+                    intervalo: Math.max(0, parseFloat(el.intervalo.value) || 0),
+                    max: Math.max(50, parseInt(el.maxCar.value, 10) || 500)
+                };
+            }
+
+            el.form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!el.texto.value.trim()) { aviso('Cole um roteiro para converter.'); return; }
+                const r = converter(el.texto.value, lerConfig());
+                el.res.textContent = r.srt;
+                el.stats.innerHTML = `<span><b>${r.blocos}</b> blocos</span><span>Duração total: <b>${formatarDuracao(r.total)}</b></span>`;
+                mostrarResultado(true);
+                salvar();
+            });
+
+            el.baixar.addEventListener('click', () => {
+                const srt = el.res.textContent;
+                if (!srt) return;
+                const blob = new Blob(['\ufeff' + srt], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'legendas.srt';
+                document.body.appendChild(a); a.click(); a.remove();
+                URL.revokeObjectURL(url);
+                aviso('Arquivo baixado.');
+            });
+
+            el.copiar.addEventListener('click', async () => {
+                try { await navigator.clipboard.writeText(el.res.textContent); aviso('SRT copiado.'); }
+                catch (e) { aviso('Não foi possível copiar. Selecione o texto manualmente.'); }
+            });
+
+            el.limpar.addEventListener('click', () => {
+                el.texto.value = ''; el.res.textContent = ''; el.stats.innerHTML = '';
+                mostrarResultado(false); atualizarContador(); el.texto.focus();
+            });
+
+            el.abrir.addEventListener('click', () => el.arquivo.click());
+            el.arquivo.addEventListener('change', () => {
+                const f = el.arquivo.files[0];
+                if (!f) return;
+                const leitor = new FileReader();
+                leitor.onload = () => { el.texto.value = leitor.result; atualizarContador(); aviso('Arquivo carregado.'); };
+                leitor.readAsText(f, 'UTF-8');
+                el.arquivo.value = '';
+            });
+
+            el.texto.addEventListener('input', atualizarContador);
+            el.modo.addEventListener('change', () => { atualizarModo(); salvar(); });
+
+            /* ---------- Preferências ---------- */
+            function salvar() {
+                try {
+                    const cfg = {};
+                    CAMPOS.forEach((c) => (cfg[c] = el[c].value));
+                    localStorage.setItem('srt-config', JSON.stringify(cfg));
+                } catch (e) { }
+            }
+            function carregar() {
+                try {
+                    const cfg = JSON.parse(localStorage.getItem('srt-config') || 'null');
+                    if (cfg) CAMPOS.forEach((c) => { if (cfg[c] !== undefined) el[c].value = cfg[c]; });
+                } catch (e) { }
+            }
+
+            carregar();
+            atualizarModo();
+            atualizarContador();
+        })();
+    </script>
+</body>
+
+</html>
