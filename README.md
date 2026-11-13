@@ -1,5 +1,5 @@
 # Conversor de Roteiro para SRT
-Ferramenta simples para transformar um roteiro em texto num arquivo de legendas `.srt`. Funciona direto no navegador, em um único arquivo HTML, sem instalação e sem enviar nada para servidores. Portátil !
+Ferramenta simples para transformar um roteiro em texto num arquivo de legendas `.srt`. Funciona direto no navegador, sem instalação e sem enviar nada para servidores. Portátil !
 
 ## Recursos
 - Divide o texto em blocos respeitando o fim das frases
@@ -12,8 +12,8 @@ Ferramenta simples para transformar um roteiro em texto num arquivo de legendas 
 - Lembra suas configurações no navegador
 
 ## Como usar
-1. Baixe o arquivo `index.html`.
-2. Abra no navegador (clique duas vezes no arquivo).
+1. Baixe o arquivo os arquivos do repositório.
+2. Abra no navegador (clique duas vezes no arquivo 'index.html').
 3. Cole o roteiro ou use **Abrir .txt**.
 4. Ajuste as opções e clique em **Converter para SRT**.
 5. Use **Baixar SRT** ou **Copiar SRT**.
@@ -38,12 +38,10 @@ Toda história começa com uma primeira frase. O resto vem depois.
 Continue escrevendo, e a legenda acompanha.
 ```
 
-## Boas práticas
-- Mantenha entre 13 e 17 caracteres por segundo para uma leitura confortável.
+## Dicas
+- Mantenha entre 12 e 17 caracteres por segundo para uma leitura confortável.
 - Prefira blocos curtos. Para vídeos comuns, de 80 a 120 caracteres costumam funcionar melhor que o limite padrão de 500, que serve a usos como narração em lote.
 - Use intervalo baixo (de 0 a 1 s) quando as legendas devem acompanhar uma fala contínua.
 - Revise o resultado no seu editor de vídeo e ajuste os tempos se necessário.
 - Salve o roteiro original, porque a ferramenta não guarda o texto colado.
-- Mantenha tudo em um único arquivo, sem dependências externas.
-- Teste mudanças na lógica de conversão com roteiros curtos, longos e sem pontuação.
-- Preserve a codificação UTF-8 para não quebrar acentos.
+- Teste mudanças na lógica de conversão.
